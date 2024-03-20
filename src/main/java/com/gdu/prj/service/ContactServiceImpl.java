@@ -15,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Service
-public class ContactImpl implements ContactService {
+public class ContactServiceImpl implements ContactService {
   
   private final ContactDao contactDao;
 
@@ -52,24 +52,29 @@ public class ContactImpl implements ContactService {
   @Override
   public void modifyContact(HttpServletRequest request, HttpServletResponse response) {
     
-    int contactNo = Integer.parseInt(request.getParameter("contact-no"));
-    ContactDto contactDto = ContactDto.builder()
-        .contactNo(contactNo)
-        .name(request.getParameter("name"))
-        .mobile(request.getParameter("mobile"))
-        .email(request.getParameter("email"))
-        .address(request.getParameter("address"))
-        .build();
-    
-    int updateCount = contactDao.modifyContact(contactDto);
+    // 수정(성공->상세보기, 실패->뒤로가기)
 
+    // 수정할 ContactDto 생성
+    int contactNo = Integer.parseInt(request.getParameter("contact-no"));
+    ContactDto contact = ContactDto.builder()
+                              .contactNo(contactNo)
+                              .name(request.getParameter("name"))
+                              .mobile(request.getParameter("mobile"))
+                              .email(request.getParameter("email"))
+                              .address(request.getParameter("address"))
+                            .build();
+
+    // 수정
+    int updateCount = contactDao.modifyContact(contact);
+    
+    // 수정 결과에 따른 응답
     response.setContentType("text/html; charset=UTF-8");
     try {
       PrintWriter out = response.getWriter();
       out.println("<script>");
       if(updateCount == 1) {
         out.println("alert('연락처가 수정되었습니다.')");
-        out.println("location.href='" + request.getContextPath() + "/contact/detail.do?contact-no=" + contactNo + "'");
+        out.println("location.href='" + request.getContextPath() + "/contact/detail.do?contact-no=" + contactNo + "'");  // redirect 를 의미하는 코드
       } else {
         out.println("alert('연락처가 수정되지 않았습니다.')");
         out.println("history.back()");
@@ -77,20 +82,24 @@ public class ContactImpl implements ContactService {
       out.println("</script>");
       out.flush();
       out.close();
-    } catch(Exception e) {
+    } catch (Exception e) {
       e.printStackTrace();
     }
     
-
   }
 
   @Override
   public void removeContact(HttpServletRequest request, HttpServletResponse response) {
+    
+    // 삭제(성공->목록보기, 실패->뒤로가기)
+    
+    // 삭제할 contactNo
     int contactNo = Integer.parseInt(request.getParameter("contact-no"));
     
+    // 삭제
     int deleteCount = contactDao.removeContact(contactNo);
     
-    
+    // 삭제 결과에 따른 응답
     response.setContentType("text/html; charset=UTF-8");
     try {
       PrintWriter out = response.getWriter();
@@ -108,9 +117,8 @@ public class ContactImpl implements ContactService {
     } catch (Exception e) {
       e.printStackTrace();
     }
-
+    
   }
-
   @Override
   public List<ContactDto> getContactList() {
     return contactDao.getContactList();

@@ -19,11 +19,11 @@
         <constructor-arg ref="hikariConfig"/>
       </bean>
   
-      <bean id="sqlSessionFactory"
+      <bean id="sqlSessionFactoryBean"
             class="org.mybatis.spring.SqlSessionFactoryBean"
             scope="singleton">
         <property name="dataSource" ref="hikariDataSource" />
-        <property name="configLocation" value="classpath:com/gdu/prj/spring/mybatis/mybatis-config.xml"/>
+        <property name="configLocation" value="classpath:com/gdu/prj/spring/mybatis/config/mybatis-config.xml"/>
         <property name="mapperLocations" value="classpath:com/gdu/prj/spring/mybatis/mapper/*.xml"/>
       </bean>
       
@@ -31,6 +31,12 @@
         id="sqlSessionTemplate"
         scope="singleton">
        <constructor-arg ref="sqlSessionFactoryBean"/>
+      </bean>
+      
+      <bean class="com.gdu.prj.dao.ContactDaoImpl"
+            id="contactDao"
+            scope="singleton">
+      <constructor-arg ref="sqlSessionTemplate"></constructor-arg>       
       </bean>
                 
 </beans>
